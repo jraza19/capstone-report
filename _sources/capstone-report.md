@@ -4,13 +4,13 @@
 By: Ela Bandari, Lara Habashy, Peter Yang and Javairia Raza
 
 ## Executive Summary
-Subclinical lipohypertrophy is traditionally evaluated based on visual inspection or palpation. Recent work has shown that lipohypertrophy may be detected by ultrasound imaging {cite}`kapeluto2018ultrasound`. However, the criteria used to classify lipohypertrophy using ultrasound imaging is only familiar to and implemented by a small group of physicians {cite:ts}`madden_2021`. In an effort to improve the accessibility and efficiency of this method of detection, we have developed a supervised machine learning model to detect lipohypertrophy in ultrasound images. 
+Subclinical lipohypertrophy is traditionally evaluated based on visual inspection or palpation. Recent work has shown that lipohypertrophy may be detected by ultrasound imaging (Kapeluto et al., 2018). However, the criteria used to classify lipohypertrophy using ultrasound imaging is only familiar to and implemented by a small group of physicians (Madden, 2021). In an effort to improve the accessibility and efficiency of this method of detection, we have developed a supervised machine learning model to detect lipohypertrophy in ultrasound images. 
 
 To develop our machine learning model, we tested a variety of image augmentation techniques and ultimately decided on augmenting our dataset by adding random flipping, contrast and brightness. We then fit a variety of pre-existing model architectures trained on thousands of images to our augmented dataset. We optimized the parameters by which the model learned and then carefully examined the different models’ performance and fine tuned them to our dataset before selecting the best performing model. Our final model accurately classified 76% of unseen test data. We have made our model accessible to potential users via a [web interface](https://share.streamlit.io/xudongyang2/lipo_deployment/demo_v2.py). Our work has demonstrated the potential that supervised machine learning holds in accurately detecting lipohypertrophy; however, the scarcity of the ultrasound images has been a contributor to the model’s shortcomings. We have outlined a set of recommendations for improving this project; the most notable of which is re-fitting the model using a larger dataset.
 
 
 ## Introduction
-Subclinical lipohypertrophy is a common complication for diabetic patients who inject insulin. It is defined as the growth of fat cells and fibrous tissue in the deepest layer of the skin following repeated insulin injections in the same area. It is critical that insulin is not injected into areas of lipohypertrophy as it reduces the effectiveness of the insulin. Fortunately, research by {cite}`kapeluto2018ultrasound` has found ultrasound imaging techniques are more accurate in finding these masses than a physical examination of the body by a healthcare professional. But, currently, the criteria to classify lipohypertrophy using ultrasound imaging is only implemented by a small group of physicians. To expand the usability of this criteria to a larger set of healthcare professionals, the capstone partner is interested in seeing if we can leverage supervised machine learning techniques to accurately classify the presence of lipohypertrophy given an ultrasound image.
+Subclinical lipohypertrophy is a common complication for diabetic patients who inject insulin. It is defined as the growth of fat cells and fibrous tissue in the deepest layer of the skin following repeated insulin injections in the same area. It is critical that insulin is not injected into areas of lipohypertrophy as it reduces the effectiveness of the insulin. Fortunately, research by Kapeluto et al. (2018)  has found ultrasound imaging techniques are more accurate in finding these masses than a physical examination of the body by a healthcare professional. But, currently, the criteria to classify lipohypertrophy using ultrasound imaging is only implemented by a small group of physicians. To expand the usability of this criteria to a larger set of healthcare professionals, the capstone partner is interested in seeing if we can leverage supervised machine learning techniques to accurately classify the presence of lipohypertrophy given an ultrasound image.
 
 ```{figure} image/example.png
 ---
@@ -51,24 +51,16 @@ Throughout the project, the team has consulted literature to gain insight and di
 
 ## Data Science Methods 
 
-```{figure} image/ds_workflow.png
----
-height: 500px
-name: workflow
----
-Our general data science workflow for the capstone project. 
-```
-
 3.1 Data Preparation
 
-Given our small dataset, image augmentation techniques are used to expand the size of the training set and ideally make the model more generalizable. We explored the pytorch and the albumentations library for augmentation as they proved to improve accuracy {cite}`al2019deep`. We also attempted to leverage a machine learning tool called autoalbument from the latter library that finds the best transformations for you. However, following several runs, the accuracy did not improve from baseline. We suspect it may be that the transformations were too complex for the model to learn anything significant. Using simpler transformations to augment the data was complemented by results found in our literature review {cite}`esteva2017, loey2020deep`. A variety of classic transformations were tested and the model’s performance on these augmented datasets were documented [here](https://github.com/UBC-MDS/capstone-gdrl-lipo/blob/master/notebooks/manual-albumentation.ipynb). The transformations that led to the best performance were adding random vertical and horizontal flipping with a probability of 50% along with random brightness and contrast.
+Given our small dataset, image augmentation techniques are used to expand the size of the training set and ideally make the model more generalizable. We explored the pytorch and the albumentations library for augmentation as they proved to improve accuracy (Al-Dhabyani et al., 2019). We also attempted to leverage a machine learning tool called autoalbument from the latter library that finds the best transformations for you. However, following several runs, the accuracy did not improve from baseline. We suspect it may be that the transformations were too complex for the model to learn anything significant. Using simpler transformations to augment the data was complemented by results found in our literature review(Esteva et al., 2017;Loey et al., 2020). A variety of classic transformations were tested and the model’s performance on these augmented datasets were documented here. The transformations that led to the best performance were adding random vertical and horizontal flipping with a probability of 50% along with random brightness and contrast.
 
 ```{figure} image/transformed_image.png
 ---
 height: 200px
 name: transformation
 ---
-Final image transformations included random vertical and horizontal flipping and random brightness and contrast.
+Image transformation.
 ```
 
 3.2 Model Development 
@@ -81,7 +73,7 @@ The augmented data is then used to train a CNN model using transfer learning. Th
 height: 150px
 name: acc_chart
 ---
-All four models were tested on a holdout sample to produce these accuracy results. 
+The results of accuracy.
 ```
 
 ```{figure} image/model_recall_bar_chart.png
@@ -89,16 +81,15 @@ All four models were tested on a holdout sample to produce these accuracy result
 height: 150px
 name: recall_chart
 ---
-All four models were tested on a holdout sample to produce these recall results. 
+The results of recall.
 ```
 
 
-The model that utilizes the DenseNet architecture appears to be the best performing model for our dataset. Furthermore, we conducted a [manual analysis](https://github.com/UBC-MDS/capstone-gdrl-lipo/blob/master/notebooks/model_decision_making.ipynb) of tricky negative and positive images to test model performance using an interactive interface. This application allowed us to compare how confident the models were when misclassifying cases and showcased how well DenseNet was doing. 
+The model that utilizes the densenet architecture appears to be the best performing model for our dataset. Furthermore, we conducted a manual analysis of tricky negative and positive images to test model performance using an interactive interface. This application allowed us to compare how confident the models were when misclassifying cases and showcased how well DenseNet was doing. 
 
-In an effort to reduce the high confidence levels for misclassifications, a problem known as overfitting, we considered adding dropout layers in our CNN structure. In this case, overfitting occurs as a result of having trained our models on such a small training set. Another way to reduce overfitting is to average the predictions from all four models, called an ensemble. However, an ensemble would not be feasible as it requires lots of resources such as enough CPU to train the models. Although the dropout layers did manage to reduce overfitting in the models, the overall reduced accuracy was not significant enough to implement those layers in our optimal model. To see this exploration, click [here](https://github.com/UBC-MDS/capstone-gdrl-lipo/blob/master/notebooks/densemodels-ax-dropout-layers.ipynb).
+In an effort to reduce the high confidence levels for misclassifications, a problem known as overfitting, we considered adding dropout layers in our CNN structure. In this case, overfitting occurs as a result of having trained our models on such a small training set. Another way to reduce overfitting is to average the predictions from all four models, called an ensemble. However, an ensemble would not be feasible as it requires lots of resources such as enough CPU to train the models. Although the dropout layers did manage to reduce overfitting in the models, the overall reduced accuracy was not significant enough to implement those layers in our optimal model. To see this exploration, click here.
 
-Furthermore, as our capstone partner was far more interested in reducing false negatives, areas where insulin should not be injected, we investigated various techniques to optimize recall. Positive weight (pos_weight) is one argument of the loss function used in our CNN model which, if greater than 1, prioritizes the positive examples more such that there is a heavier penalization (loss) on labelling the positive lipohypertrophy examples incorrectly. However, this method was not implemented in our final model as it proved to be unstable. After conducting a few experiments, we found high variance in the [results](https://github.com/UBC-MDS/capstone-gdrl-lipo/blob/master/notebooks/pos-weight-exploration.ipynb). 
-
+Furthermore, as our capstone partner was far more interested in reducing false negatives, areas where insulin should not be injected, we investigated various techniques to optimize recall. Positive weight (pos_weight) is one argument of the loss function used in our CNN model which, if greater than 1, prioritizes the positive examples more such that there is a heavier penalization (loss) on labelling the positive lipohypertrophy examples incorrectly. However, this method was not implemented in our final model as it proved to be unstable. After conducting a few experiments, we found high variance in the results. 
 Finally, the choice of our optimal model as DenseNet was further motivated by its size and compatibility with our data product, further discussed in the data product section.
 
 ```{figure} image/size_df.png
@@ -106,7 +97,7 @@ Finally, the choice of our optimal model as DenseNet was further motivated by it
 height: 250px
 name: size_df
 ---
-Comparison of the file size of the different models revealed that DenseNet was the smallest model. 
+Size comparison.
 ```
 
 Our next objective was to implement object detection into our pipeline, giving us the ability to identify the exact location of lipohypertrophy on unseen test images. To implement object detection using a popular framework called YOLO, first, using the annotated ultrasound images, the team created bounding boxes around the location of the lipohypertrophy masses in the positive training images. Next, using the YOLOv5 framework, the Yolov5m model was trained for approximately 200 epochs with an image size of 300 and a batch size of 8. The team also experimented with different training parameters to find the optimal ones and found the former specifics optimal.
@@ -116,7 +107,7 @@ Our next objective was to implement object detection into our pipeline, giving u
 height: 500px
 name: obj_det
 ---
-Our final object detection model results on a test sample reveals promising results. The top row indicates the true location of lipohypertrophy and the bottom row indicates where the model thinks the lipohypertrophy is. The number on the red box indicates the model's confidence. 
+Object Detection.
 ```
 
 ## Data Product and Results 
@@ -130,7 +121,7 @@ The second deliverable is a web application for our partner to interact with the
 height: 300px
 name: web_app
 ---
-Our web application on Streamlit can take multiple images and provides a final prediction and its confidence for a given image. If the model is considered positive, the model will also propose the location of the lipohypetrophy. 
+Web app.
 ```
 
 ## Conclusions and recommendations
@@ -148,18 +139,17 @@ Although our project has demonstrated that machine learning can be used to detec
 
 2. Limited resources - Limited computing power has been a recurrent challenge in this project and has made it difficult to experiment with tuning all the parameters of our model concurrently. 
 
-3. Lack of oversight - We believe that there should be an auditing process involved to ensure that our machine learning model does not propagate any biases that could cause harm to specific patient populations. It would also be useful to have other independent radiologists label the dataset in order to draw comparisons between physicians’ and algorithms’ performance.
+3. Lack of Oversight - We believe that there should be an auditing process involved to ensure that our machine learning model does not propagate any biases that could cause harm to specific patient populations. It would also be useful to have other independent radiologists label the dataset in order to draw comparisons between physicians’ and algorithms’ performance.
 
 To address the limitations outlined above, our team has made the following recommendations: 
 
-1.  Addition of more labelled images – In line with the size of the dataset in similar studies {cite}`xiao2018comparison,cheng2017transfer`, we recommend increasing the dataset to at least 1000 images.
+1.  Addition of more labelled images – In line with the size of the dataset in similar studies (Xiao et al., 2018; Cheng & Malhi, 2017), we recommend increasing the dataset to at least 1000 images.
 
 2.  Increasing computational resources - we recommend obtaining funding for additional computing resources for both the development and deployment of future models.
 
 3. Add additional functionality such as native cropping.
 
 
-## Bibliography
+## References
+[insert here]
 
-```{bibliography} references.bib
-```
